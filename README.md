@@ -1,6 +1,6 @@
-# JobLens
+# 🚀 JobLens
 
-> **Your AI agent that finds the right jobs and prepares personalized applications.**
+### AI-Powered Career Assistant for Smarter Job Applications
 
 JobLens is a multi-agent AI system that analyzes your resume, scores it against any job description, tailors your resume for the role, writes your cover letter, and generates interview prep — all powered by a unified Career Knowledge Base.
 
@@ -8,343 +8,582 @@ No auto-applying. No black-box spraying. Just signal: you see exactly where you 
 
 ---
 
-## Demo
+# 🎬 Demo
 
-```
+### How JobLens Works
+
+```text
 Upload Resume  →  Paste Job Description  →  Get Match Score
-
-JobLens Dashboard
-─────────────────────────────────────────────────────────
-  Resume Uploaded          ✔  John_Doe_Resume.pdf
-
-  Job Match Score          91%   ████████████████████░░
-
-  Strengths                ✔ React   ✔ Node.js   ✔ Docker
-  Missing Skills           ✖ AWS     ✖ Redis
-
-  Recommendation           Strong candidate — apply with tailored resume.
-
-  [ Download Tailored Resume ]  [ Generate Cover Letter ]  [ View 15 Interview Questions ]
-─────────────────────────────────────────────────────────
 ```
 
----
+### JobLens Dashboard
 
-## Features
+```text
+─────────────────────────────────────────────────────────────
+                        JOBLENS
+─────────────────────────────────────────────────────────────
 
-### 1. Resume Upload & Parsing
-Upload your resume as PDF or DOCX. The Resume Agent extracts and structures:
-- Skills
-- Work experience (company, role, duration, bullets)
-- Education
-- Projects
+  Resume Uploaded
+  ✔  John_Doe_Resume.pdf
 
-Everything is embedded and stored in your **Career Knowledge Base** — a unified Qdrant vector store that all agents query.
+  Job Match Score
+  91%   ████████████████████░░
 
-### 2. Job Description Input
-No scraping required. Provide a job description three ways:
-- **Paste** raw JD text
-- **Upload** a JD as PDF
-- **Paste** a company careers page URL (best-effort extraction)
+  Strengths
+  ✔ React    ✔ Node.js    ✔ Docker    ✔ PostgreSQL
 
-The JD is also embedded into the Knowledge Base so agents can retrieve relevant context across multiple JDs over time.
+  Missing Skills
+  ✖ AWS      ✖ Redis
 
-### 3. AI Match Score
-The Match Agent semantically compares your profile against the job description — not just keyword counting.
+  Recommendation
+  Strong candidate — apply with tailored resume.
 
-```
-Match Score: 91%
+  [ Download Tailored Resume ]
+  [ Generate Cover Letter ]
+  [ View Interview Questions ]
 
-Strengths         ✔ React  ✔ Node.js  ✔ Docker  ✔ PostgreSQL
-Missing Skills    ✖ AWS    ✖ Redis
-Recommendation    Strong candidate. Consider adding a small AWS project to close the gap.
+─────────────────────────────────────────────────────────────
 ```
 
-### 4. Resume Tailoring Agent
-Generates a version of your resume optimized for the specific role:
-- Reorders projects to lead with most relevant work
-- Surfaces matching skills higher
-- Rewrites bullet points with ATS-friendly keywords from the JD
+### 🔄 Application Flow
 
-It never invents experience — only reorganizes and rewords what you actually have.
-
-#### Regenerate with a Custom Prompt
-If the first version isn't quite right, guide the agent with a natural language instruction:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  Not satisfied with the tailored resume?                │
-│                                                         │
-│  "Make it more senior and emphasize leadership roles"   │
-│  "Focus only on backend experience, remove frontend"    │
-│  "Use a more concise, one-page format"                  │
-│  "Highlight open source contributions more"             │
-│                                                         │
-│  [ Regenerate with this prompt ]                        │
-└─────────────────────────────────────────────────────────┘
-```
-
-Each regeneration uses the same Career Knowledge Base context — the agent re-runs with your original resume, the JD, and your new instruction combined. Every version is saved so you can compare and pick the best one.
-
-**How it works under the hood:**
-
-```
-User prompt: "Make it more concise, one page only"
+```text
+        📄 Resume
+            │
+            ▼
+      🤖 Resume Analysis
+            │
+            ▼
+      🎯 Job Match Analysis
+            │
+       ┌────┼────┐
+       ▼    ▼    ▼
+   Strengths Gaps Score
        │
        ▼
-Resume Optimizer Agent
-  ├── Fetches: original parsed resume from KB
-  ├── Fetches: JD requirements from KB
-  ├── Applies: user's regeneration instruction as a constraint
-  └── Outputs: new tailored resume variant (v2, v3, ...)
+   📝 Resume Tailoring
+       │
+       ├──────────────► ✉️ Cover Letter
+       │
+       └──────────────► 🎤 Interview Prep
 ```
-
-### 5. Cover Letter Agent
-One button. The agent reads your resume, the JD, and the company name to produce a focused, non-generic cover letter.
-
-Supports the same regeneration pattern:
-
-```
-"Make it shorter — 3 paragraphs max"
-"Use a more confident, direct tone"
-"Emphasize my transition from frontend to full-stack"
-[ Regenerate ]
-```
-
-### 6. Interview Preparation
-The Interview Agent generates:
-- Likely technical and behavioral questions for this specific role
-- Topics to revise based on your skill gaps
-- Talking points drawn from your own resume and projects
 
 ---
 
-## Career Knowledge Base
+# ✨ Features
 
-Most tools index one PDF. JobLens builds a persistent, growing knowledge base:
+## 📄 1. Resume Upload & Parsing
 
-| Source | What Gets Stored |
-|---|---|
-| Resume | Parsed skills, experience, education, projects |
-| Job Descriptions | JD text, required skills, company context |
-| GitHub READMEs | Project descriptions, tech used, outcomes |
-| Certificates | Credential names, dates, issuing bodies |
-| Portfolio content | Case studies, descriptions, links |
+Upload your resume in **PDF or DOCX** format.
 
-Whenever any agent needs context — for matching, tailoring, interview prep, regeneration, or Q&A — it retrieves from this unified store using semantic search.
+The Resume Agent extracts and structures:
 
----
+* Skills
+* Work experience
+* Company and role
+* Education
+* Projects
+* Relevant achievements
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        JobLens                              │
-│                                                             │
-│  User ──► Resume Upload / JD Input / URL                    │
-│                │                                            │
-│                ▼                                            │
-│         Resume Agent ──► Career Knowledge Base (Qdrant)     │
-│                                   │                         │
-│           ┌───────────────────────┼────────────────────┐   │
-│           ▼                       ▼                    ▼   │
-│      Match Agent          Resume Optimizer        Cover Letter Agent  │
-│      (score + gaps)       (tailored resume)       (draft + regen)     │
-│                                                         │   │
-│                                                         ▼   │
-│                                               Interview Agent          │
-│                                               (questions + prep)       │
-│                                                                        │
-│                        Dashboard (React)                               │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### Agent Roles
-
-| Agent | Responsibility |
-|---|---|
-| Resume Agent | Parse uploaded resume, extract structured data, embed into KB |
-| Match Agent | Semantic match between profile and JD; return score + gap list |
-| Resume Optimizer | Reorder + rewrite resume; re-runs with user prompt for regeneration |
-| Cover Letter Agent | Draft cover letter; supports regeneration with tone/length prompts |
-| Interview Agent | Generate questions, revision topics, and talking points |
-
-All agents are implemented as **LangGraph.js** nodes in a single stateful graph. LangChain.js handles LLM calls and Qdrant retrieval.
+The extracted information is embedded and stored in the **Career Knowledge Base**, allowing other agents to retrieve relevant information when needed.
 
 ---
 
-## Tech Stack
+## 🎯 2. Job Description Input
 
-| Layer | Technology | Role |
-|---|---|---|
-| Frontend | React + TypeScript + Tailwind CSS | Dashboard UI |
-| Backend | Node.js + Express.js + TypeScript | API, file handling, auth |
-| AI Orchestration | LangGraph.js | Stateful multi-agent graph with regeneration loop |
-| LLM + Retrieval | LangChain.js + Gemini API | Agent reasoning + RAG |
-| Vector DB | Qdrant | Career Knowledge Base (semantic search) |
-| Relational DB | PostgreSQL | Users, sessions, job history, resume versions |
-| Auth | JWT + Google OAuth | Authentication |
-| Containers | Docker + Compose | Local dev + deployment |
+JobLens supports multiple ways to provide a job description:
+
+* **Paste** raw job description text
+* **Upload** a JD as PDF
+* **Provide** a company careers-page URL
+
+The job description can also be embedded into the Knowledge Base so relevant context can be retrieved during analysis and generation.
 
 ---
 
-## Project Structure
+## 📊 3. AI Match Score
 
+The Match Agent performs a **semantic comparison** between your career profile and the target job description rather than relying only on keyword counting.
+
+Example:
+
+```text
+Match Score: 91%
+
+Strengths
+✔ React
+✔ Node.js
+✔ Docker
+✔ PostgreSQL
+
+Missing Skills
+✖ AWS
+✖ Redis
+
+Recommendation
+Strong candidate. Consider adding a small AWS project
+to close the gap.
 ```
-joblens/
+
+This helps candidates understand not just their score, but **why they match and where they need improvement**.
+
+---
+
+## 📝 4. AI Resume Tailoring
+
+The Resume Optimizer generates a version of your resume optimized for the target role.
+
+It can:
+
+* Reorder projects based on relevance
+* Surface relevant skills
+* Improve resume bullet points
+* Use ATS-friendly terminology from the job description
+* Preserve the candidate's actual experience
+
+> **JobLens does not invent experience.**
+> It reorganizes and rewords information that already exists in your career profile.
+
+### 🔄 Custom Resume Regeneration
+
+You can refine the generated resume using natural-language instructions.
+
+For example:
+
+```text
+"Make it more concise."
+
+"Focus only on backend experience."
+
+"Make it one page."
+
+"Emphasize leadership experience."
+
+"Highlight open-source contributions."
+```
+
+Each regeneration uses the original resume, job description, Career Knowledge Base context, and your new instruction to produce another version.
+
+---
+
+## ✉️ 5. Personalized Cover Letter
+
+The Cover Letter Agent generates a focused cover letter using:
+
+* Your resume
+* Job description
+* Company information
+
+You can also regenerate the letter with custom instructions:
+
+```text
+"Make it shorter — 3 paragraphs maximum."
+
+"Use a more confident tone."
+
+"Emphasize my backend experience."
+
+"Focus more on my projects."
+```
+
+The same regeneration workflow can be used to refine the generated result.
+
+---
+
+## 🎤 6. Interview Preparation
+
+The Interview Agent generates role-specific interview preparation including:
+
+* Technical questions
+* Behavioral questions
+* Topics to revise
+* Resume-based talking points
+* Skill-gap focused preparation
+
+This allows candidates to prepare based on the **actual role they are targeting** rather than relying only on generic interview questions.
+
+---
+
+# 🧠 Career Knowledge Base
+
+JobLens uses a persistent **Career Knowledge Base** instead of treating every request as an isolated interaction.
+
+Information can be stored from multiple career-related sources:
+
+| Source              | Information                               |
+| ------------------- | ----------------------------------------- |
+| 📄 Resume           | Skills, experience, education, projects   |
+| 💼 Job Descriptions | Requirements, skills, company context     |
+| 🐙 GitHub READMEs   | Projects, technologies, outcomes          |
+| 🏆 Certificates     | Credentials, dates, issuing organizations |
+| 🌐 Portfolio        | Case studies, descriptions, links         |
+
+When an agent needs additional context, it retrieves relevant information from the unified Knowledge Base using **semantic search**.
+
+---
+
+# 🤖 Multi-Agent Architecture
+
+JobLens uses **LangGraph.js** to coordinate multiple specialized AI agents through a stateful workflow.
+
+```text
+                         ┌──────────────────┐
+                         │       User       │
+                         └────────┬─────────┘
+                                  │
+                    Resume / Job Description
+                                  │
+                                  ▼
+                         ┌──────────────────┐
+                         │   Resume Agent   │
+                         └────────┬─────────┘
+                                  │
+                                  ▼
+                    ┌─────────────────────────┐
+                    │ Career Knowledge Base   │
+                    │         Qdrant          │
+                    └────────────┬────────────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              │                  │                  │
+              ▼                  ▼                  ▼
+       ┌────────────┐    ┌──────────────┐   ┌──────────────┐
+       │Match Agent │    │Resume         │   │Cover Letter  │
+       │            │    │Optimizer      │   │Agent         │
+       └─────┬──────┘    └──────┬───────┘   └──────┬───────┘
+             │                  │                  │
+             └──────────────────┼──────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │ Interview Agent │
+                       └────────┬────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │    Dashboard    │
+                       └─────────────────┘
+```
+
+### Agent Responsibilities
+
+| Agent                  | Responsibility                                           |
+| ---------------------- | -------------------------------------------------------- |
+| **Resume Agent**       | Parse uploaded resume and extract structured information |
+| **Match Agent**        | Perform semantic job matching and identify skill gaps    |
+| **Resume Optimizer**   | Tailor and regenerate resumes for specific roles         |
+| **Cover Letter Agent** | Generate and regenerate personalized cover letters       |
+| **Interview Agent**    | Generate role-specific questions and preparation         |
+
+All agents are implemented as **LangGraph.js nodes**, while **LangChain.js** handles LLM calls and Qdrant retrieval.
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer                   | Technology                        | Purpose                                 |
+| ----------------------- | --------------------------------- | --------------------------------------- |
+| **Frontend**            | React + TypeScript + Tailwind CSS | Dashboard UI                            |
+| **Backend**             | Node.js + Express.js + TypeScript | API, authentication & file handling     |
+| **AI Orchestration**    | LangGraph.js                      | Stateful multi-agent workflow           |
+| **LLM & RAG**           | LangChain.js + Gemini API         | AI reasoning & retrieval                |
+| **Vector Database**     | Qdrant                            | Career Knowledge Base                   |
+| **Relational Database** | PostgreSQL                        | Users, sessions, job history & versions |
+| **Authentication**      | JWT + Google OAuth                | User authentication                     |
+| **Containers**          | Docker + Docker Compose           | Local development & deployment          |
+
+---
+
+# 📁 Project Structure
+
+```text
+JobLens/
+│
 ├── apps/
-│   ├── frontend/                        # React + TypeScript + Tailwind
+│   │
+│   ├── frontend/
 │   │   └── src/
 │   │       ├── pages/
 │   │       │   ├── Dashboard.tsx
 │   │       │   ├── Upload.tsx
 │   │       │   └── InterviewPrep.tsx
+│   │       │
 │   │       └── components/
 │   │           ├── MatchScoreCard/
 │   │           ├── ResumeViewer/
-│   │           ├── RegeneratePromptBar/  # prompt input + version history
+│   │           ├── RegeneratePromptBar/
 │   │           ├── CoverLetterModal/
 │   │           └── SkillGapChart/
 │   │
-│   └── backend/                         # Node.js + Express + LangGraph.js
+│   └── backend/
 │       └── src/
 │           ├── agents/
 │           │   ├── resumeAgent.ts
 │           │   ├── matchAgent.ts
-│           │   ├── optimizerAgent.ts     # accepts regeneration prompt
-│           │   ├── coverLetterAgent.ts   # accepts regeneration prompt
+│           │   ├── optimizerAgent.ts
+│           │   ├── coverLetterAgent.ts
 │           │   └── interviewAgent.ts
+│           │
 │           ├── graph/
-│           │   └── careerGraph.ts        # LangGraph state machine
+│           │   └── careerGraph.ts
+│           │
 │           ├── kb/
-│           │   └── knowledgeBase.ts      # Qdrant helpers
+│           │   └── knowledgeBase.ts
+│           │
 │           ├── routes/
 │           ├── middleware/
-│           └── db/                       # PostgreSQL schema + queries
+│           └── db/
 │
 ├── docker-compose.yml
 ├── .env.example
+├── package.json
+├── package-lock.json
 └── README.md
 ```
 
 ---
 
-## Getting Started
+# ⚙️ Getting Started
 
-### Prerequisites
+## Prerequisites
 
-- Docker & Docker Compose
-- Node.js 20+
-- Gemini API key
-- Google OAuth credentials (for auth)
+Before running JobLens, make sure you have:
 
-### 1. Clone & configure
-
-```bash
-git clone https://github.com/your-username/joblens.git
-cd joblens
-cp .env.example .env
-# Fill in: GEMINI_API_KEY, DATABASE_URL, QDRANT_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, JWT_SECRET
-```
-
-### 2. Start all services
-
-```bash
-docker compose up --build
-```
-
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:4000 |
-| Qdrant UI | http://localhost:6333/dashboard |
-| PostgreSQL | localhost:5432 |
-
-### 3. Upload your resume
-
-Go to `http://localhost:3000` → upload your PDF or DOCX → the Resume Agent parses and indexes it.
-
-### 4. Analyze a job
-
-Paste any job description → get your match score, tailored resume, and interview questions.
-
-### 5. Regenerate until it's right
-
-On any generated output (resume, cover letter), type a custom instruction and hit **Regenerate**. Compare versions and download the one you want.
+* Node.js 20+
+* Docker
+* Docker Compose
+* Gemini API key
+* Google OAuth credentials
 
 ---
 
-## Environment Variables
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/avendersharma/JobLens.git
+cd JobLens
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3. Configure Environment Variables
+
+Create a `.env` file using the provided example:
+
+```bash
+cp .env.example .env
+```
+
+Then configure:
 
 ```env
 # LLM
 GEMINI_API_KEY=
 
-# Vector DB
+# Vector Database
 QDRANT_URL=http://localhost:6333
 QDRANT_COLLECTION=joblens_kb
 
-# Relational DB
+# PostgreSQL
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/joblens
 
-# Auth
+# Authentication
 JWT_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# App
+# Application
 FRONTEND_URL=http://localhost:3000
 PORT=4000
 ```
 
----
+> ⚠️ **Never commit your `.env` file or expose API keys publicly.**
 
-## Roadmap
-
-### Phase 1 — Core Pipeline
-- [ ] Resume upload + parsing (PDF/DOCX)
-- [ ] JD input (paste / upload / URL)
-- [ ] Career Knowledge Base (Qdrant setup + embedding pipeline)
-- [ ] Match Agent with score + gap analysis
-
-### Phase 2 — Generation Agents
-- [ ] Resume Optimizer Agent (first-pass tailoring)
-- [ ] Resume regeneration with custom prompt + version history
-- [ ] Cover Letter Agent (first-pass generation)
-- [ ] Cover letter regeneration with tone/length prompt
-- [ ] Interview Prep Agent
-
-### Phase 3 — Frontend
-- [ ] Dashboard with match score card
-- [ ] Tailored resume viewer + download
-- [ ] Regenerate prompt bar with version switcher
-- [ ] Cover letter modal + edit + regenerate
-- [ ] Interview questions panel
-
-### Phase 4 — Knowledge Base Expansion
-- [ ] GitHub README ingestion
-- [ ] Certificate upload
-- [ ] Portfolio / case study input
-
-### Phase 5 — Polish
-- [ ] Google OAuth + JWT auth
-- [ ] Job history (saved JDs + all generated versions)
-- [ ] Export to PDF
-- [ ] Docker production build
+The environment variables above are based on the project's existing configuration.
 
 ---
 
-## Contributing
+# 🐳 Run with Docker
 
-This project is being built collaboratively. To get started:
+Start all services:
 
-1. Pick a task from the roadmap above
-2. Create a branch: `git checkout -b feature/your-task`
-3. Make your changes and open a PR against `main`
-4. Keep PRs focused — one feature or fix per PR
+```bash
+docker compose up --build
+```
+
+### Available Services
+
+| Service     | URL                               |
+| ----------- | --------------------------------- |
+| Frontend    | `http://localhost:3000`           |
+| Backend API | `http://localhost:4000`           |
+| Qdrant UI   | `http://localhost:6333/dashboard` |
+| PostgreSQL  | `localhost:5432`                  |
+
+Stop the services:
+
+```bash
+docker compose down
+```
 
 ---
 
-## License
+# 🔄 User Workflow
 
-MIT © 2024 JobLens
+```text
+1. Upload Resume
+        ↓
+2. Resume Agent parses the resume
+        ↓
+3. Career information is stored in the Knowledge Base
+        ↓
+4. Add a Job Description
+        ↓
+5. Match Agent analyzes the job
+        ↓
+6. Review match score & skill gaps
+        ↓
+7. Generate tailored resume
+        ↓
+8. Generate personalized cover letter
+        ↓
+9. Prepare for interview
+        ↓
+10. Regenerate outputs using custom instructions
+```
+
+---
+
+# 📸 Screenshots
+
+Add your actual application screenshots here.
+
+### 🏠 Dashboard
+
+![JobLens Dashboard](./screenshots/dashboard.png)
+
+### 🎯 Job Match Analysis
+
+![Job Match Analysis](./screenshots/job-match.png)
+
+### 🎤 Interview Preparation
+
+![Interview Preparation](./screenshots/interview-prep.png)
+
+> **Tip:** Keep 2–3 high-quality screenshots. A dashboard, match analysis, and one generated result are enough for a strong portfolio README.
+
+---
+
+# 🗺️ Roadmap
+
+## Phase 1 — Core Pipeline
+
+* [ ] Resume upload & parsing
+* [ ] Job description input
+* [ ] Career Knowledge Base
+* [ ] Match Agent with score and gap analysis
+
+## Phase 2 — Generation Agents
+
+* [ ] Resume Optimizer
+* [ ] Resume regeneration with custom prompts
+* [ ] Resume version history
+* [ ] Cover Letter Agent
+* [ ] Cover letter regeneration
+* [ ] Interview Preparation Agent
+
+## Phase 3 — Frontend
+
+* [ ] Dashboard
+* [ ] Match score interface
+* [ ] Tailored resume viewer
+* [ ] Resume version switcher
+* [ ] Cover letter interface
+* [ ] Interview question interface
+
+## Phase 4 — Knowledge Base Expansion
+
+* [ ] GitHub README ingestion
+* [ ] Certificate ingestion
+* [ ] Portfolio / case-study ingestion
+
+## Phase 5 — Platform Improvements
+
+* [ ] Job application tracking
+* [ ] Job history
+* [ ] Resume version comparison
+* [ ] PDF export
+* [ ] Production deployment
+
+These roadmap items reflect the original project's planned development areas.
+
+---
+
+# 🔐 Security
+
+JobLens uses environment variables to protect sensitive credentials.
+
+Never commit:
+
+```text
+.env
+API keys
+JWT secrets
+Google OAuth secrets
+Database credentials
+```
+
+Make sure `.env` is included in `.gitignore`.
+
+---
+
+# 💡 Design Philosophy
+
+JobLens is built around one simple idea:
+
+> **Don't just tell candidates whether they match a job. Tell them why.**
+
+The system focuses on:
+
+* 🎯 Context-aware job matching
+* 🧠 Semantic retrieval
+* 📄 Personalized resume generation
+* ✉️ Role-specific cover letters
+* 🎤 Interview preparation
+* 🔄 Iterative AI refinement
+* 📊 Explainable skill gaps
+
+The goal is not to blindly apply to hundreds of jobs.
+
+The goal is to help candidates understand:
+
+> **Where do I stand? What am I missing? How can I improve my application?**
+
+---
+
+# 👨‍💻 Author
+
+## Avender Sharma
+
+**Computer Science & Engineering**
+
+* GitHub: [@avendersharma](https://github.com/avendersharma)
+* Project: [JobLens](https://github.com/avendersharma/JobLens)
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+⭐ **If you find JobLens interesting, consider giving the repository a star!**
