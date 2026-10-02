@@ -70,3 +70,4 @@ export async function queryKBMultiSource(text: string, sources: Array<'resume' |
 
   return results.map((r) => r.payload as ChunkMetadata);
 }
+

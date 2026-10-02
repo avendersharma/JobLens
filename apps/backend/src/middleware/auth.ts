@@ -41,3 +41,4 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
 export function generateToken(userId: string, email: string, name: string): string {
   return jwt.sign({ userId, email, name }, JWT_SECRET, { expiresIn: '7d' });
 }
+

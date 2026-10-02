@@ -28,3 +28,4 @@ export async function runResumeAgent(buffer: Buffer, mimetype: string, filename:
   console.log(`Resume agent: indexed ${chunks.length} chunks for docId=${docId} (${filename})`);
   return { docId, rawText, parsed };
 }
+

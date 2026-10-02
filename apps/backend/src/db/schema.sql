@@ -65,3 +65,4 @@ CREATE TABLE IF NOT EXISTS interview_preps (
   questions_json JSONB NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+

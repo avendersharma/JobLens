@@ -34,7 +34,7 @@ export async function parseFile(buffer: Buffer, mimetype: string): Promise<strin
 
 export async function extractStructured(text: string): Promise<ParsedResume> {
   const llm = new ChatGroq({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     apiKey: process.env.GROQ_API_KEY,
   });
 
@@ -56,3 +56,4 @@ ${text}`;
   const cleaned = raw.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
   return JSON.parse(cleaned) as ParsedResume;
 }
+

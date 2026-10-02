@@ -24,7 +24,7 @@ export async function runInterviewAgent(
   const resumeContext = resumeChunks.map((c) => c.text).join('\n\n');
 
   const llm = new ChatGroq({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     apiKey: process.env.GROQ_API_KEY,
   });
 
@@ -98,3 +98,4 @@ Return ONLY valid JSON matching this exact schema:
   const cleaned = raw.replace(/^```(?:json)?\n?/m, '').replace(/\n?```$/m, '').trim();
   return JSON.parse(cleaned) as InterviewPrep;
 }
+

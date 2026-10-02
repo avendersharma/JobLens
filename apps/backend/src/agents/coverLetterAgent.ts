@@ -28,7 +28,7 @@ export async function runCoverLetterAgent(
   }
 
   const llm = new ChatGroq({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     apiKey: process.env.GROQ_API_KEY,
   });
 
@@ -72,3 +72,4 @@ ${customPrompt}`;
     companyName: detectedCompany,
   };
 }
+
